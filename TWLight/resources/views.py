@@ -146,7 +146,9 @@ class PartnersDetailView(DetailView):
                     # but link to collection page
                     if not partner.specific_title:
                         context["apply"] = False
-                    context["has_auths"] = True
+                    # Checking if user has agreed to terms and conditions, otherwise
+                    # they shouldn't be authorized to access the collection
+                    context["has_auths"] = True and user.userprofile.terms_of_use
                 except Authorization.DoesNotExist:
                     pass
                 except Authorization.MultipleObjectsReturned:
@@ -171,7 +173,7 @@ class PartnersDetailView(DetailView):
                     # User has correct number of auths, don't show 'apply',
                     # but link to collection page
                     context["apply"] = False
-                    context["has_auths"] = True
+                    context["has_auths"] = True and user.userprofile.terms_of_use
                     if apps.count() > 0:
                         # User has open apps, link to apps page
                         context["has_open_apps"] = True
@@ -183,7 +185,7 @@ class PartnersDetailView(DetailView):
                             auth_streams.append(each_authorization.stream)
                     if auth_streams:
                         # User has authorizations, link to collection page
-                        context["has_auths"] = True
+                        context["has_auths"] = True and user.userprofile.terms_of_use
                     no_auth_streams = partner_streams.exclude(
                         name__in=auth_streams
                     )  # streams with no corresponding authorizations – we'll want to know if these have apps
